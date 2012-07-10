@@ -31,14 +31,14 @@ namespace GoldParser
         
         private DB _dataBase;
         #endregion
-        private static DispatcherTimer timer = new DispatcherTimer();
+       // private static DispatcherTimer timer = new DispatcherTimer();
         
         [DllImport("psapi.dll")]
         static extern int EmptyWorkingSet(IntPtr hwProc);
         private void Scan()
         {
             _account = 0;
-            var processes = Process.GetProcessesByName("wow");  
+            var processes = Process.GetProcessesByName("Wow.exe");  
             if (processes.Length == 0)
             {
                 if(Properties.Settings.Default.lang=="Русский")
@@ -58,7 +58,7 @@ namespace GoldParser
             _accounts = new Account[processes.Length];
             for (int i = 0; i < processes.Length; i++)
             {
-                EmptyWorkingSet(processes[i].Handle);
+                //EmptyWorkingSet(processes[i].Handle);
                 Config.Memory = new Memory(processes[i].Id);
                 Config.baseAddressModule = Memory.GetModule(processes[i].Id, "Wow.exe"); 
                 if (Config.Memory.ReadInt(Config.baseAddressModule + Offset.GameState)==1)
@@ -113,25 +113,16 @@ namespace GoldParser
         }
         #region Buttons+MainForm Constructor
         public MainForm()
-        {
-
+        {    
             _count = 0;
             InitializeComponent();
             LoadAccounts();
-            timer.Tick +=
-                delegate(object s, EventArgs args)
-                {
-                    Scan();
-                };
-
-            timer.Interval = new TimeSpan(0, 0, 5); // one second
-
         }
 
 
         private void button1_Click(object sender, EventArgs e)
         {
-            timer.Start();
+            Scan();
         }
           
         private void button3_Click(object sender, EventArgs e)
@@ -145,6 +136,12 @@ namespace GoldParser
             Process.Start("skype:ololasek64?chat");
         }
         #endregion
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+                Scan();
+        }
        
     }
      
